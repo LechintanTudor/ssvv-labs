@@ -22,10 +22,30 @@ class AppTest {
     }
 
     @Test
-    void tryToAddInvalidStudent() {
+    void tryToAddStudentWithInvalidId() {
         var service = createService();
-        var student = new Student("", "George", 100, "george@gmail.com");
-        assertThrows(ValidationException.class, () -> service.addStudent(student));
+        assertInvalidStudentCannotBeAdded(service, new Student("", "George", 100, "george@gmail.com"));
+        assertInvalidStudentCannotBeAdded(service, new Student(null, "George", 100, "george@gmail.com"));
+    }
+
+    @Test
+    void tryToAddStudentWithInvalidName() {
+        var service = createService();
+        assertInvalidStudentCannotBeAdded(service, new Student("1", "", 100, "george@gmail.com"));
+        assertInvalidStudentCannotBeAdded(service, new Student("1", null, 100, "george@gmail.com"));
+    }
+
+    @Test
+    void tryToAddStudentWithInvalidGroup() {
+        var service = createService();
+        assertInvalidStudentCannotBeAdded(service, new Student("1", "George", -1, "george@gmail.com"));
+    }
+
+    @Test
+    void tryToAddStudentWithInvalidEmail() {
+        var service = createService();
+        assertInvalidStudentCannotBeAdded(service, new Student("1", "George", 1, ""));
+        assertInvalidStudentCannotBeAdded(service, new Student("1", "George", 1, null));
     }
 
     Service createService() {
@@ -40,5 +60,9 @@ class AppTest {
         NotaValidator notaValidator = new NotaValidator(studentXMLRepository, temaXMLRepository);
         NotaXMLRepo notaXMLRepository = new NotaXMLRepo(filenameNota);
         return new Service(studentXMLRepository, studentValidator, temaXMLRepository, temaValidator, notaXMLRepository, notaValidator);
+    }
+
+    void assertInvalidStudentCannotBeAdded(Service service, Student student) {
+        assertThrows(ValidationException.class, () -> service.addStudent(student));
     }
 }
