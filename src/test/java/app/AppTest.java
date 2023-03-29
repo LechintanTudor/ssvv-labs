@@ -1,6 +1,7 @@
 package app;
 
 import domain.Student;
+import domain.Tema;
 import org.junit.jupiter.api.Test;
 import repository.NotaXMLRepo;
 import repository.StudentXMLRepo;
@@ -48,6 +49,32 @@ class AppTest {
         assertInvalidStudentCannotBeAdded(service, new Student("1", "George", 1, null));
     }
 
+    @Test
+    void addValidTema() {
+        var service = createService();
+        service.addTema(new Tema("1", "Desc", 1, 1));
+    }
+
+    @Test
+    void tryToAddTemaWithInvalidId() {
+        var service = createService();
+        assertInvalidTemaCannotBeAdded(service, new Tema(null, "Desc", 1, 1));
+        assertInvalidTemaCannotBeAdded(service, new Tema("", "Desc", 1, 1));
+    }
+
+    @Test
+    void tryToAddTemaWithInvalidDescription() {
+        var service = createService();
+        assertInvalidTemaCannotBeAdded(service, new Tema("1", "", 1, 1));
+    }
+
+    @Test
+    void tryToAddTemaWithInvalidDeadline() {
+        var service = createService();
+        assertInvalidTemaCannotBeAdded(service, new Tema("1", "Desc", 0, 1));
+        assertInvalidTemaCannotBeAdded(service, new Tema("1", "Desc", 15, 1));
+    }
+
     Service createService() {
         StudentValidator studentValidator = new StudentValidator();
         TemaValidator temaValidator = new TemaValidator();
@@ -64,5 +91,9 @@ class AppTest {
 
     void assertInvalidStudentCannotBeAdded(Service service, Student student) {
         assertThrows(ValidationException.class, () -> service.addStudent(student));
+    }
+
+    void assertInvalidTemaCannotBeAdded(Service service, Tema tema) {
+        assertThrows(ValidationException.class, () -> service.addTema(tema));
     }
 }
